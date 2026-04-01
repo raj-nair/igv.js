@@ -31,6 +31,7 @@ class AlignmentTrack extends TrackBase {
         viewAsPairs: false,
         showSoftClips: false,
         showAllBases: false,
+        hightlightQ22Bases: false,
         showInsertions: true,
         showMismatches: true,
         colorBy: undefined,
@@ -490,7 +491,7 @@ class AlignmentTrack extends TrackBase {
                     IGVGraphics.fillRect(ctx, bbox.x, bbox.y, bbox.width, bbox.height, { fillStyle: baseColor })
                 }
 
-                if (readQual === 22) {
+                if (this.hightlightQ22Bases && readQual === 22) {
                     ctx.save()
                     ctx.lineWidth = 1
                     ctx.strokeStyle = "rgba(191, 16, 168, 0.5)"
@@ -813,6 +814,16 @@ class AlignmentTrack extends TrackBase {
             element: createCheckbox("Show all bases", this.showAllBases),
             click: function showAllBasesHandler() {
                 this.alignmentTrack.showAllBases = !this.alignmentTrack.showAllBases
+                this.trackView.repaintViews()
+            }
+        })
+
+        // Highlight Q22 bases
+        menuItems.push({
+            element: createCheckbox("Highlight Q22 bases", this.hightlightQ22Bases),
+            click: function hightlightQ22BasesHandler() {
+                this.alignmentTrack.showAllBases = true
+                this.alignmentTrack.hightlightQ22Bases = !this.alignmentTrack.hightlightQ22Bases
                 this.trackView.repaintViews()
             }
         })
