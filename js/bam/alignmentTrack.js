@@ -1572,6 +1572,11 @@ function shadedBaseColor(qual, baseColor) {
     // Round alpha to nearest 0.1
     alpha = Math.round(alpha * 10) / 10.0
 
+    //if qual is 22, add purple background to base color
+    if (qual === 22) {
+        baseColor = "rgb(128, 0, 128)"
+    }
+    
     if (alpha < 1) {
         baseColor = IGVColor.addAlpha(baseColor, alpha)
     }
