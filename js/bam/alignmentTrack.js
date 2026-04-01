@@ -476,7 +476,7 @@ class AlignmentTrack extends TrackBase {
                 }
             }
 
-            for (let { bbox, baseColor, readChar } of basesToDraw) {
+            for (let { bbox, baseColor, readChar, readQual } of basesToDraw) {
                 const threshold = 1.0 / 10.0
                 if (bpPerPixel <= threshold && bbox.height >= 8) {
                     // render letter
@@ -488,6 +488,14 @@ class AlignmentTrack extends TrackBase {
 
                     // render colored block
                     IGVGraphics.fillRect(ctx, bbox.x, bbox.y, bbox.width, bbox.height, { fillStyle: baseColor })
+                }
+
+                if (readQual === 22) {
+                    ctx.save()
+                    ctx.lineWidth = 1
+                    ctx.strokeStyle = "rgba(191, 16, 168, 0.5)"
+                    ctx.strokeRect(bbox.x, bbox.y, bbox.width, bbox.height)
+                    ctx.restore()
                 }
             }
 
@@ -625,8 +633,9 @@ class AlignmentTrack extends TrackBase {
                         if (readChar === "X" || refChar !== readChar || isSoftClip || showAllBases) {
 
                             let baseColor = nucleotideColors[readChar] || "rgb(0,0,0)"
+                            let readQual
                             if (!isSoftClip && qual !== undefined && qual.length > seqOffset + i) {
-                                const readQual = qual[seqOffset + i]
+                                readQual = qual[seqOffset + i]
                                 baseColor = shadedBaseColor(readQual, baseColor)
                             }
 
@@ -638,7 +647,8 @@ class AlignmentTrack extends TrackBase {
                                     height: alignmentHeight
                                 },
                                 baseColor,
-                                readChar
+                                readChar,
+                                readQual
                             })
                         }
 
@@ -1564,7 +1574,7 @@ function shadedBaseColor(qual, baseColor) {
     const maxQ = 39//config.baseQualityMax !== undefined ? config.baseQualityMax : 20;
 
     let alpha
-
+    
     if (qual < minQ) {
         alpha = 0.1
     } else {
@@ -1578,7 +1588,7 @@ function shadedBaseColor(qual, baseColor) {
         baseColor = "rgb(128, 0, 128)"
     }
     
-    if ((alpha < 1) && (qual !== 22)) {
+    if (alpha < 1) {
         baseColor = IGVColor.addAlpha(baseColor, alpha)
     }
     return baseColor
