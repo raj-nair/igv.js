@@ -1,17 +1,17 @@
 import BaseModificationRenderer from "./mods/baseModificationRenderer.js"
 import IGVGraphics from "../igv-canvas.js"
 import PairedAlignment from "./pairedAlignment.js"
-import {IGVColor, StringUtils} from "../../node_modules/igv-utils/src/index.js"
-import {isSecureContext} from "../util/igvUtils.js"
-import {createBlatTrack, maxSequenceSize} from "../blat/blatTrack.js"
-import {reverseComplementSequence} from "../util/sequenceUtils.js"
+import { IGVColor, StringUtils } from "../../node_modules/igv-utils/src/index.js"
+import { isSecureContext } from "../util/igvUtils.js"
+import { createBlatTrack, maxSequenceSize } from "../blat/blatTrack.js"
+import { reverseComplementSequence } from "../util/sequenceUtils.js"
 import orientationTypes from "./orientationTypes.js"
-import {ColorTable, PaletteColorTable} from "../util/colorPalletes.js"
+import { ColorTable, PaletteColorTable } from "../util/colorPalletes.js"
 import TrackBase from "../trackBase.js"
-import {getChrColor} from "../util/getChrColor.js"
-import {createCheckbox} from "../igv-icons.js"
-import {modificationName} from "./mods/baseModificationUtils.js"
-import {createElementWithString} from "../ui/utils/dom-utils.js"
+import { getChrColor } from "../util/getChrColor.js"
+import { createCheckbox } from "../igv-icons.js"
+import { modificationName } from "./mods/baseModificationUtils.js"
+import { createElementWithString } from "../ui/utils/dom-utils.js"
 
 
 
@@ -248,7 +248,7 @@ class AlignmentTrack extends TrackBase {
                     xBlockStart += 1
                     xBlockEnd -= 1
                 }
-                IGVGraphics.fillRect(ctx, xBlockStart, 2, (xBlockEnd - xBlockStart), downsampleRowHeight - 2, {fillStyle: "black"})
+                IGVGraphics.fillRect(ctx, xBlockStart, 2, (xBlockEnd - xBlockStart), downsampleRowHeight - 2, { fillStyle: "black" })
             })
 
         } else {
@@ -359,7 +359,7 @@ class AlignmentTrack extends TrackBase {
             if (alignment.mq <= 0) {
                 connectorColor = IGVColor.addAlpha(connectorColor, 0.15)
             }
-            IGVGraphics.setProperties(ctx, {fillStyle: connectorColor, strokeStyle: connectorColor})
+            IGVGraphics.setProperties(ctx, { fillStyle: connectorColor, strokeStyle: connectorColor })
             IGVGraphics.strokeLine(ctx, xBlockStart, yStrokedLine, xBlockEnd, yStrokedLine)
 
         }
@@ -378,7 +378,7 @@ class AlignmentTrack extends TrackBase {
             if (alignment.mq <= 0) {
                 alignmentColor = IGVColor.addAlpha(alignmentColor, 0.15)
             }
-            IGVGraphics.setProperties(ctx, {fillStyle: alignmentColor, strokeStyle: outlineColor})
+            IGVGraphics.setProperties(ctx, { fillStyle: alignmentColor, strokeStyle: outlineColor })
 
             // Save bases to draw into an array for later drawing, so they can be overlaid on insertion blocks,
             // which is relevant if we have insertions with size label
@@ -422,7 +422,7 @@ class AlignmentTrack extends TrackBase {
                     // Add gap width as text like Java IGV if it fits nicely and is a multi-base gap
                     if (this.showDeletionText && gap.len > 1 && lineWidth >= gapTextWidth + 8) {
                         const textStart = gapCenter - (gapTextWidth / 2)
-                        IGVGraphics.fillRect(ctx, textStart - 1, y - 1, gapTextWidth + 2, 12, {fillStyle: "white"})
+                        IGVGraphics.fillRect(ctx, textStart - 1, y - 1, gapTextWidth + 2, 12, { fillStyle: "white" })
                         IGVGraphics.fillText(ctx, gapLenText, textStart, y + 10, {
                             'font': 'normal 10px monospace',
                             'fillStyle': this.deletionTextColor
@@ -455,7 +455,7 @@ class AlignmentTrack extends TrackBase {
 
                     const xBlockStart = (refOffset / bpPerPixel) - (widthBlock / 2)
                     if ((xBlockStart - lastXBlockStart) > 2) {
-                        const props = {fillStyle: this.insertionColor}
+                        const props = { fillStyle: this.insertionColor }
 
                         // Draw decorations like Java IGV to make an 'I' shape
                         IGVGraphics.fillRect(ctx, xBlockStart - 2, y, widthBlock + 4, 2, props)
@@ -476,18 +476,18 @@ class AlignmentTrack extends TrackBase {
                 }
             }
 
-            for (let {bbox, baseColor, readChar} of basesToDraw) {
+            for (let { bbox, baseColor, readChar } of basesToDraw) {
                 const threshold = 1.0 / 10.0
                 if (bpPerPixel <= threshold && bbox.height >= 8) {
                     // render letter
                     const fontHeight = Math.min(10, bbox.height)
                     ctx.font = '' + fontHeight + 'px sans-serif'
                     const center = bbox.x + (bbox.width / 2.0)
-                    IGVGraphics.strokeText(ctx, readChar, center - (ctx.measureText(readChar).width / 2), fontHeight - 1 + bbox.y, {strokeStyle: baseColor})
+                    IGVGraphics.strokeText(ctx, readChar, center - (ctx.measureText(readChar).width / 2), fontHeight - 1 + bbox.y, { strokeStyle: baseColor })
                 } else {
 
                     // render colored block
-                    IGVGraphics.fillRect(ctx, bbox.x, bbox.y, bbox.width, bbox.height, {fillStyle: baseColor})
+                    IGVGraphics.fillRect(ctx, bbox.x, bbox.y, bbox.width, bbox.height, { fillStyle: baseColor })
                 }
             }
 
@@ -577,16 +577,16 @@ class AlignmentTrack extends TrackBase {
                             y]
 
                     }
-                    IGVGraphics.fillPolygon(ctx, xListPixel, yListPixel, {fillStyle: alignmentColor})
+                    IGVGraphics.fillPolygon(ctx, xListPixel, yListPixel, { fillStyle: alignmentColor })
 
                     if (strokeOutline) {
-                        IGVGraphics.strokePolygon(ctx, xListPixel, yListPixel, {strokeStyle: blockOutlineColor})
+                        IGVGraphics.strokePolygon(ctx, xListPixel, yListPixel, { strokeStyle: blockOutlineColor })
                     }
                 }
 
                 // Internal block
                 else {
-                    IGVGraphics.fillRect(ctx, blockStartPixel, y, blockWidthPixel, alignmentHeight, {fillStyle: alignmentColor})
+                    IGVGraphics.fillRect(ctx, blockStartPixel, y, blockWidthPixel, alignmentHeight, { fillStyle: alignmentColor })
 
                     if (strokeOutline) {
                         ctx.save()
@@ -659,11 +659,11 @@ class AlignmentTrack extends TrackBase {
                     const fontHeight = Math.min(10, bbox.height)
                     context.font = '' + fontHeight + 'px sans-serif'
                     center = bbox.x + (bbox.width / 2.0)
-                    IGVGraphics.strokeText(context, char, center - (context.measureText(char).width / 2), fontHeight - 1 + bbox.y, {strokeStyle: color})
+                    IGVGraphics.strokeText(context, char, center - (context.measureText(char).width / 2), fontHeight - 1 + bbox.y, { strokeStyle: color })
                 } else {
 
                     // render colored block
-                    IGVGraphics.fillRect(context, bbox.x, bbox.y, bbox.width, bbox.height, {fillStyle: color})
+                    IGVGraphics.fillRect(context, bbox.x, bbox.y, bbox.width, bbox.height, { fillStyle: color })
                 }
             }
         }
@@ -707,21 +707,21 @@ class AlignmentTrack extends TrackBase {
         menuItems.push('<hr/>')
         let element = createElementWithString('<div class="igv-track-menu-category">')
         element.innerText = 'Color by:'
-        menuItems.push({name: undefined, element, click: undefined, init: undefined})
+        menuItems.push({ name: undefined, element, click: undefined, init: undefined })
 
         const colorByMenuItems = []
-        colorByMenuItems.push({key: 'none', label: 'none'})
-        colorByMenuItems.push({key: 'strand', label: 'read strand'})
+        colorByMenuItems.push({ key: 'none', label: 'none' })
+        colorByMenuItems.push({ key: 'strand', label: 'read strand' })
         if (this.hasPairs) {
-            colorByMenuItems.push({key: 'firstOfPairStrand', label: 'first-of-pair strand'})
-            colorByMenuItems.push({key: 'pairOrientation', label: 'pair orientation'})
-            colorByMenuItems.push({key: 'tlen', label: 'insert size (TLEN)'})
-            colorByMenuItems.push({key: 'unexpectedPair', label: 'pair orientation & insert size (TLEN)'})
+            colorByMenuItems.push({ key: 'firstOfPairStrand', label: 'first-of-pair strand' })
+            colorByMenuItems.push({ key: 'pairOrientation', label: 'pair orientation' })
+            colorByMenuItems.push({ key: 'tlen', label: 'insert size (TLEN)' })
+            colorByMenuItems.push({ key: 'unexpectedPair', label: 'pair orientation & insert size (TLEN)' })
         }
         if (this.colorBy && this.colorBy.startsWith("tag:")) {
-            colorByMenuItems.push({key: this.colorBy, label: this.colorBy})
+            colorByMenuItems.push({ key: this.colorBy, label: this.colorBy })
         }
-        colorByMenuItems.push({key: 'tag', label: 'tag...'})
+        colorByMenuItems.push({ key: 'tag', label: 'tag...' })
         for (let item of colorByMenuItems) {
             const selected = (this.colorBy === undefined && item.key === 'none') || this.colorBy === item.key
             menuItems.push(this.colorByCB(item, selected))
@@ -765,32 +765,32 @@ class AlignmentTrack extends TrackBase {
         element = document.createElement('div')
         element.className = 'igv-track-menu-category'
         element.textContent = 'Group by:'
-        menuItems.push({name: undefined, element, click: undefined, init: undefined})
+        menuItems.push({ name: undefined, element, click: undefined, init: undefined })
 
         const groupByMenuItems = []
-        groupByMenuItems.push({key: 'none', label: 'none'})
-        groupByMenuItems.push({key: 'strand', label: 'read strand'})
+        groupByMenuItems.push({ key: 'none', label: 'none' })
+        groupByMenuItems.push({ key: 'strand', label: 'read strand' })
         if (this.hasPairs) {
-            groupByMenuItems.push({key: 'firstOfPairStrand', label: 'first-of-pair strand'})
-            groupByMenuItems.push({key: 'pairOrientation', label: 'pair orientation'})
-            groupByMenuItems.push({key: 'mateChr', label: 'chromosome of mate'})
+            groupByMenuItems.push({ key: 'firstOfPairStrand', label: 'first-of-pair strand' })
+            groupByMenuItems.push({ key: 'pairOrientation', label: 'pair orientation' })
+            groupByMenuItems.push({ key: 'mateChr', label: 'chromosome of mate' })
         }
-        groupByMenuItems.push({key: 'chimeric', label: 'chimeric'})
-        groupByMenuItems.push({key: 'supplementary', label: 'supplementary flag'})
-        groupByMenuItems.push({key: 'readOrder', label: 'read order'})
+        groupByMenuItems.push({ key: 'chimeric', label: 'chimeric' })
+        groupByMenuItems.push({ key: 'supplementary', label: 'supplementary flag' })
+        groupByMenuItems.push({ key: 'readOrder', label: 'read order' })
         //groupByMenuItems.push({key: 'phase', label: 'phase'})
 
         for (let groupByTag of this._groupByTags) {
-            groupByMenuItems.push({key: `tag:${groupByTag}`, label: `tag:${groupByTag}`})
+            groupByMenuItems.push({ key: `tag:${groupByTag}`, label: `tag:${groupByTag}` })
         }
         for (let groupByPos of this._groupByPositions) {
-            groupByMenuItems.push({key: `base:${groupByPos}`, label: `base:${groupByPos}`})
+            groupByMenuItems.push({ key: `base:${groupByPos}`, label: `base:${groupByPos}` })
         }
         for (let groupByPos of this._groupByInsertionPositions) {
-            groupByMenuItems.push({key: `insertion:${groupByPos}`, label: `base:${groupByPos}`})
+            groupByMenuItems.push({ key: `insertion:${groupByPos}`, label: `base:${groupByPos}` })
         }
 
-        groupByMenuItems.push({key: 'tag', label: 'tag...'})
+        groupByMenuItems.push({ key: 'tag', label: 'tag...' })
 
         for (let item of groupByMenuItems) {
             const selected = (this.groupBy === undefined && item.key === 'none') || this.groupBy === item.key
@@ -893,7 +893,7 @@ class AlignmentTrack extends TrackBase {
         element = document.createElement('div')
         element.className = 'igv-track-menu-category'
         element.textContent = 'Display mode:'
-        menuItems.push({name: undefined, element, click: undefined, init: undefined})
+        menuItems.push({ name: undefined, element, click: undefined, init: undefined })
 
         for (let mode of ["EXPANDED", "SQUISHED", "FULL"])
             menuItems.push({
@@ -939,7 +939,7 @@ class AlignmentTrack extends TrackBase {
                 this.trackView.repaintViews()
             }
 
-            return {name: undefined, element, click: clickHandler, init: undefined}
+            return { name: undefined, element, click: clickHandler, init: undefined }
         } else {
 
             function dialogPresentationHandler(ev) {
@@ -964,7 +964,7 @@ class AlignmentTrack extends TrackBase {
                 }, ev)
             }
 
-            return {name: undefined, element, dialog: dialogPresentationHandler, init: undefined}
+            return { name: undefined, element, dialog: dialogPresentationHandler, init: undefined }
 
         }
     }
@@ -1069,39 +1069,39 @@ class AlignmentTrack extends TrackBase {
             viewport.repaint()
         }
         list.push('<b>Sort by...</b>')
-        list.push({label: '&nbsp; base', click: () => sortByOption("BASE")})
-        list.push({label: '&nbsp; read strand', click: () => sortByOption("strand")})
-        list.push({label: '&nbsp; start location', click: () => sortByOption("START")})
-        list.push({label: '&nbsp; insert size', click: () => sortByOption("INSERT_SIZE")})
-        list.push({label: '&nbsp; gap size', click: () => sortByOption("GAP_SIZE")})
-        list.push({label: '&nbsp; chromosome of mate', click: () => sortByOption("MATE_CHR")})
-        list.push({label: '&nbsp; mapping quality', click: () => sortByOption("MQ")})
-        list.push({label: '&nbsp; read name', click: () => sortByOption("READ_NAME")})
-        list.push({label: '&nbsp; aligned read length', click: () => sortByOption("ALIGNED_READ_LENGTH")})
+        list.push({ label: '&nbsp; base', click: () => sortByOption("BASE") })
+        list.push({ label: '&nbsp; read strand', click: () => sortByOption("strand") })
+        list.push({ label: '&nbsp; start location', click: () => sortByOption("START") })
+        list.push({ label: '&nbsp; insert size', click: () => sortByOption("INSERT_SIZE") })
+        list.push({ label: '&nbsp; gap size', click: () => sortByOption("GAP_SIZE") })
+        list.push({ label: '&nbsp; chromosome of mate', click: () => sortByOption("MATE_CHR") })
+        list.push({ label: '&nbsp; mapping quality', click: () => sortByOption("MQ") })
+        list.push({ label: '&nbsp; read name', click: () => sortByOption("READ_NAME") })
+        list.push({ label: '&nbsp; aligned read length', click: () => sortByOption("ALIGNED_READ_LENGTH") })
         list.push({
             label: '&nbsp; tag', click: () => {
                 const cs = this.sortObject
                 const direction = (cs && cs.position === Math.floor(clickState.genomicLocation)) ? !cs.direction : true
                 const config =
-                    {
-                        label: 'Tag Name',
-                        value: this.sortByTag ? this.sortByTag : '',
-                        callback: (tag) => {
-                            if (tag) {
-                                const newSortObject = {
-                                    chr: viewport.referenceFrame.chr,
-                                    position: Math.floor(clickState.genomicLocation),
-                                    option: "TAG",
-                                    tag: tag,
-                                    direction: direction
-                                }
-                                this.sortByTag = tag
-                                this.sortObject = newSortObject
-                                viewport.cachedFeatures.sortRows(newSortObject)
-                                viewport.repaint()
+                {
+                    label: 'Tag Name',
+                    value: this.sortByTag ? this.sortByTag : '',
+                    callback: (tag) => {
+                        if (tag) {
+                            const newSortObject = {
+                                chr: viewport.referenceFrame.chr,
+                                position: Math.floor(clickState.genomicLocation),
+                                option: "TAG",
+                                tag: tag,
+                                direction: direction
                             }
+                            this.sortByTag = tag
+                            this.sortObject = newSortObject
+                            viewport.cachedFeatures.sortRows(newSortObject)
+                            viewport.repaint()
                         }
                     }
+                }
                 this.browser.inputDialog.present(config, clickState.event)
             }
         })
@@ -1259,7 +1259,7 @@ class AlignmentTrack extends TrackBase {
                                 const sequence = clickedAlignment.isNegativeStrand() ? reverseComplementSequence(seqstring) : seqstring
                                 const name = `${clickedAlignment.readName} - blat`
                                 const title = `${this.name} - ${name}`
-                                createBlatTrack({sequence, browser: this.browser, name, title})
+                                createBlatTrack({ sequence, browser: this.browser, name, title })
                             }
                         })
                     }
@@ -1273,7 +1273,7 @@ class AlignmentTrack extends TrackBase {
                                 const sequence = clickedAlignment.isNegativeStrand() ? reverseComplementSequence(clippedSequence) : clippedSequence
                                 const name = `${clickedAlignment.readName} - blat left clip`
                                 const title = `${this.name} - ${name}`
-                                createBlatTrack({sequence, browser: this.browser, name, title})
+                                createBlatTrack({ sequence, browser: this.browser, name, title })
                             }
                         })
                     }
@@ -1285,7 +1285,7 @@ class AlignmentTrack extends TrackBase {
                                 const sequence = clickedAlignment.isNegativeStrand() ? reverseComplementSequence(clippedSequence) : clippedSequence
                                 const name = `${clickedAlignment.readName} - blat right clip`
                                 const title = `${this.name} - ${name}`
-                                createBlatTrack({sequence, browser: this.browser, name, title})
+                                createBlatTrack({ sequence, browser: this.browser, name, title })
                             }
                         })
                     }
@@ -1558,8 +1558,10 @@ class AlignmentTrack extends TrackBase {
 
 function shadedBaseColor(qual, baseColor) {
 
-    const minQ = 5   //prefs.getAsInt(PreferenceManager.SAM_BASE_QUALITY_MIN),
-    const maxQ = 20  //prefs.getAsInt(PreferenceManager.SAM_BASE_QUALITY_MAX);
+    //const minQ = 5   //prefs.getAsInt(PreferenceManager.SAM_BASE_QUALITY_MIN),
+    //const maxQ = 20  //prefs.getAsInt(PreferenceManager.SAM_BASE_QUALITY_MAX);
+    const minQ = this.config.baseQualityMin !== undefined ? this.config.baseQualityMin : 5;
+    const maxQ = this.config.baseQualityMax !== undefined ? this.config.baseQualityMax : 20;
 
     let alpha
     if (qual < minQ) {
