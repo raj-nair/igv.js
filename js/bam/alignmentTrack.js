@@ -1560,8 +1560,8 @@ function shadedBaseColor(qual, baseColor) {
 
     //const minQ = 5   //prefs.getAsInt(PreferenceManager.SAM_BASE_QUALITY_MIN),
     //const maxQ = 20  //prefs.getAsInt(PreferenceManager.SAM_BASE_QUALITY_MAX);
-    const minQ = this.config.baseQualityMin !== undefined ? this.config.baseQualityMin : 5;
-    const maxQ = this.config.baseQualityMax !== undefined ? this.config.baseQualityMax : 20;
+    const minQ = config.baseQualityMin !== undefined ? config.baseQualityMin : 5;
+    const maxQ = config.baseQualityMax !== undefined ? config.baseQualityMax : 20;
 
     let alpha
     if (qual < minQ) {
