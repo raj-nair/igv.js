@@ -1564,6 +1564,7 @@ function shadedBaseColor(qual, baseColor) {
     const maxQ = 39//config.baseQualityMax !== undefined ? config.baseQualityMax : 20;
 
     let alpha
+
     if (qual < minQ) {
         alpha = 0.1
     } else {
@@ -1577,7 +1578,7 @@ function shadedBaseColor(qual, baseColor) {
         baseColor = "rgb(128, 0, 128)"
     }
     
-    if (alpha < 1) {
+    if ((alpha < 1) && (qual !== 22)) {
         baseColor = IGVColor.addAlpha(baseColor, alpha)
     }
     return baseColor
