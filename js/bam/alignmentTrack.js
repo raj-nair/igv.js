@@ -22,6 +22,7 @@ const DEFAULT_ALIGNMENT_COLOR = "rgb(185, 185, 185)"
 const DEFAULT_CONNECTOR_COLOR = "rgb(200, 200, 200)"
 const DEFAULT_HIGHLIGHT_COLOR = "#00ff00"
 const MINIMUM_BLAT_LENGTH = 20
+const QUAL_22 = 22
 
 const pairCompatibleGroupOptions = new Set(["firstOfPairStrand"])
 
@@ -63,7 +64,9 @@ class AlignmentTrack extends TrackBase {
         highlightColor: undefined,
         minTLEN: undefined,
         maxTLEN: undefined,
-        tagColorPallete: "Set1"
+        tagColorPallete: "Set1",
+        baseQualityMin: 5,
+        baseQualityMax: 39
     }
 
     _colorTables = new Map()
@@ -491,7 +494,7 @@ class AlignmentTrack extends TrackBase {
                     IGVGraphics.fillRect(ctx, bbox.x, bbox.y, bbox.width, bbox.height, { fillStyle: baseColor })
                 }
 
-                if (this.hightlightQ22Bases && readQual === 22) {
+                if (this.hightlightQ22Bases && readQual === QUAL_22) {
                     ctx.save()
                     ctx.lineWidth = 1
                     ctx.strokeStyle = "rgba(191, 16, 168, 0.5)"
@@ -637,7 +640,9 @@ class AlignmentTrack extends TrackBase {
                             let readQual
                             if (!isSoftClip && qual !== undefined && qual.length > seqOffset + i) {
                                 readQual = qual[seqOffset + i]
-                                baseColor = shadedBaseColor(readQual, baseColor)
+                                const minQ = this.baseQualityMin || 5
+                                const maxQ = this.baseQualityMax === undefined ? 39 : this.baseQualityMax
+                                baseColor = shadedBaseColor(readQual, baseColor, minQ, maxQ)
                             }
 
                             blockBasesToDraw.push({
@@ -1577,12 +1582,7 @@ class AlignmentTrack extends TrackBase {
 
 }
 
-function shadedBaseColor(qual, baseColor) {
-
-    //const minQ = 5   //prefs.getAsInt(PreferenceManager.SAM_BASE_QUALITY_MIN),
-    //const maxQ = 20  //prefs.getAsInt(PreferenceManager.SAM_BASE_QUALITY_MAX);
-    const minQ = 5//config.baseQualityMin !== undefined ? config.baseQualityMin : 5;
-    const maxQ = 39//config.baseQualityMax !== undefined ? config.baseQualityMax : 20;
+function shadedBaseColor(qual, baseColor, minQ, maxQ) {
 
     let alpha
     
