@@ -29,6 +29,7 @@ const pairCompatibleGroupOptions = new Set(["firstOfPairStrand"])
 class AlignmentTrack extends TrackBase {
 
     static defaults = {
+        indelQualSbx: false,
         viewAsPairs: false,
         showSoftClips: false,
         showAllBases: false,
@@ -459,7 +460,64 @@ class AlignmentTrack extends TrackBase {
 
                     const xBlockStart = (refOffset / bpPerPixel) - (widthBlock / 2)
                     if ((xBlockStart - lastXBlockStart) > 2) {
-                        const props = { fillStyle: this.insertionColor }
+                        let iColor = this.insertionColor;
+                        if (this.indelQualSbx && alignment.qual && alignment.qual !== "*" && alignment.seq && alignment.seq !== "*") {
+                            const DISCORDANT_BASE_QUALITY_MAX = 10;
+                            
+                            const isFullDiscordantInsertion = (alignment, insertionBlock) => {
+                                for (let i = 0; i < insertionBlock.len; i++) {
+                                    let qual = alignment.qual[insertionBlock.seqOffset + i];
+                                    if (qual > DISCORDANT_BASE_QUALITY_MAX) {
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                            
+                            const isDiscordantInsertion = (alignment, insertionBlock) => {
+                                for (let i = 0; i < insertionBlock.len; i++) {
+                                    let qual = alignment.qual[insertionBlock.seqOffset + i];
+                                    if (qual <= DISCORDANT_BASE_QUALITY_MAX) {
+                                        return true;
+                                    }
+                                }
+                                let base = alignment.seq[insertionBlock.seqOffset];
+                                let isHp = true;
+                                for (let i = 1; i < insertionBlock.len; i++) {
+                                    if (alignment.seq[insertionBlock.seqOffset + i] !== base) {
+                                        isHp = false;
+                                        break;
+                                    }
+                                }
+                                if (isHp) {
+                                    let position = insertionBlock.seqOffset - 1;
+                                    while (position >= 0 && alignment.seq[position] === base) {
+                                        if (alignment.qual[position] <= DISCORDANT_BASE_QUALITY_MAX) return true;
+                                        position--;
+                                    }
+                                    position = insertionBlock.seqOffset + insertionBlock.len;
+                                    while (position < alignment.seq.length && alignment.seq[position] === base) {
+                                        if (alignment.qual[position] <= DISCORDANT_BASE_QUALITY_MAX) return true;
+                                        position++;
+                                    }
+                                }
+                                let leftPos = insertionBlock.seqOffset - 1;
+                                if (leftPos >= 0 && alignment.qual[leftPos] <= DISCORDANT_BASE_QUALITY_MAX) return true;
+                                
+                                let rightPos = insertionBlock.seqOffset + insertionBlock.len;
+                                if (rightPos < alignment.seq.length && alignment.qual[rightPos] <= DISCORDANT_BASE_QUALITY_MAX) return true;
+                                
+                                return false;
+                            }
+                            
+                            if (isFullDiscordantInsertion(alignment, insertionBlock)) {
+                                iColor = "rgb(180, 180, 180)";
+                            } else if (isDiscordantInsertion(alignment, insertionBlock)) {
+                                iColor = "rgb(140, 140, 140)";
+                            }
+                        }
+
+                        const props = { fillStyle: iColor }
 
                         // Draw decorations like Java IGV to make an 'I' shape
                         IGVGraphics.fillRect(ctx, xBlockStart - 2, y, widthBlock + 4, 2, props)
@@ -822,16 +880,7 @@ class AlignmentTrack extends TrackBase {
                 this.trackView.repaintViews()
             }
         })
-
-        // Highlight Q22 bases
-        menuItems.push({
-            element: createCheckbox("Highlight Q22 bases", this.hightlightQ22Bases),
-            click: function hightlightQ22BasesHandler() {
-                this.alignmentTrack.showAllBases = true
-                this.alignmentTrack.hightlightQ22Bases = !this.alignmentTrack.hightlightQ22Bases
-                this.trackView.repaintViews()
-            }
-        })
+       
 
         // Show mismatches
         menuItems.push({
@@ -847,6 +896,25 @@ class AlignmentTrack extends TrackBase {
             element: createCheckbox("Show insertions", this.showInsertions),
             click: function showInsertionsHandler() {
                 this.alignmentTrack.showInsertions = !this.alignmentTrack.showInsertions
+                this.trackView.repaintViews()
+            }
+        })
+
+        // DVT specific: Highlight Q22 bases
+        menuItems.push({
+            element: createCheckbox("Highlight Q22 bases", this.hightlightQ22Bases),
+            click: function hightlightQ22BasesHandler() {
+                this.alignmentTrack.showAllBases = true
+                this.alignmentTrack.hightlightQ22Bases = !this.alignmentTrack.hightlightQ22Bases
+                this.trackView.repaintViews()
+            }
+        })
+
+        //DVT specific
+        menuItems.push({
+            element: createCheckbox("INDEL coloring uses grey (SBX)", this.indelQualSbx),
+            click: function showIndelQualSbxHandler() {
+                this.alignmentTrack.indelQualSbx = !this.alignmentTrack.indelQualSbx
                 this.trackView.repaintViews()
             }
         })
