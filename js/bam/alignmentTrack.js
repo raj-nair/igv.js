@@ -30,6 +30,8 @@ class AlignmentTrack extends TrackBase {
 
     static defaults = {
         indelQualSbx: false,
+        tailQualSbx: false,
+        hideTailSbx: false,
         viewAsPairs: false,
         showSoftClips: false,
         showAllBases: false,
@@ -573,6 +575,52 @@ class AlignmentTrack extends TrackBase {
                 this.baseModRenderer.drawModifications(alignment, y, alignmentHeight, context, this.colorBy, this.baseModificationThreshold)
             }
 
+            if (this.tailQualSbx && !this.hideTailSbx) {
+                let simplexTailLeftEnd = 0;
+                let alignmentLength = alignment.lengthOnRef || 0;
+                for (; simplexTailLeftEnd < alignmentLength; simplexTailLeftEnd++) {
+                    const qual = alignment.readBaseQualityAt(alignment.start + simplexTailLeftEnd);
+                    const base = alignment.readBaseAt(alignment.start + simplexTailLeftEnd);
+                    if (base !== undefined && base !== "*" && qual > 30 && base !== 0 && base !== 'N') {
+                        break;
+                    }
+                }
+                
+                let simplexTailRightStart = alignmentLength - 1;
+                for (; simplexTailRightStart >= 0; simplexTailRightStart--) {
+                    const qual = alignment.readBaseQualityAt(alignment.start + simplexTailRightStart);
+                    const base = alignment.readBaseAt(alignment.start + simplexTailRightStart);
+                    if (base !== undefined && base !== "*" && qual > 30 && base !== 0 && base !== 'N') {
+                        break;
+                    }
+                }
+
+                let tailStarts = [];
+                let tailEnds = [];
+                if (simplexTailLeftEnd > 0 && simplexTailRightStart < alignmentLength - 1 && simplexTailRightStart > 0) {
+                    tailStarts = [alignment.start, alignment.start + simplexTailRightStart + 1];
+                    tailEnds = [simplexTailLeftEnd, alignmentLength];
+                } else if (simplexTailLeftEnd !== 0 && simplexTailLeftEnd <= alignmentLength) {
+                    tailStarts = [alignment.start];
+                    tailEnds = [simplexTailLeftEnd];
+                } else if (simplexTailRightStart < alignmentLength - 1 && simplexTailRightStart >= 0) {
+                    tailStarts = [alignment.start + simplexTailRightStart + 1];
+                    tailEnds = [alignmentLength];
+                }
+
+                for (let i = 0; i < tailStarts.length; i++) {
+                    const blockChromEnd1 = tailStarts[i];
+                    const blockChromEnd2 = alignment.start + tailEnds[i];
+                    if (blockChromEnd2 < bpStart || blockChromEnd1 > bpEnd) continue;
+                    
+                    const blockPxStart = (blockChromEnd1 - bpStart) / bpPerPixel;
+                    const blockPxEnd = (blockChromEnd2 - bpStart) / bpPerPixel;
+
+                    IGVGraphics.fillRect(ctx, blockPxStart, y, blockPxEnd - blockPxStart, alignmentHeight, { fillStyle: 'rgba(0, 0, 0, 0.06)' });
+                    IGVGraphics.fillRect(ctx, blockPxStart, y, blockPxEnd - blockPxStart, alignmentHeight, { fillStyle: 'rgba(150, 50, 200, 0.08)' });
+                }
+            }
+
 
             function drawBlock(block, b) {
                 // Collect bases to draw for later rendering
@@ -918,6 +966,25 @@ class AlignmentTrack extends TrackBase {
                 this.trackView.repaintViews()
             }
         })
+
+        menuItems.push({
+            element: createCheckbox("Simplex tail coloring (SBX)", this.tailQualSbx),
+            click: function showTailQualSbxHandler() {
+                this.alignmentTrack.tailQualSbx = !this.alignmentTrack.tailQualSbx
+                this.trackView.repaintViews()
+            }
+        })
+
+        /*
+        menuItems.push({
+            element: createCheckbox("Hide simplex tails (SBX)", this.hideTailSbx),
+            click: function hideTailQualSbxHandler() {
+                this.alignmentTrack.hideTailSbx = !this.alignmentTrack.hideTailSbx
+                // Re-pack if needed, optionally repaint
+                this.trackView.repaintViews()
+            }
+        })
+        */
 
         // Soft clips
         menuItems.push({
