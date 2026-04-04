@@ -948,17 +948,26 @@ class AlignmentTrack extends TrackBase {
             }
         })
 
-        // DVT specific: Highlight Q22 bases
+        // Soft clips
         menuItems.push({
-            element: createCheckbox("Highlight Q22 bases", this.hightlightQ22Bases),
-            click: function hightlightQ22BasesHandler() {
-                this.alignmentTrack.showAllBases = true
-                this.alignmentTrack.hightlightQ22Bases = !this.alignmentTrack.hightlightQ22Bases
+            element: createCheckbox("Show soft clips", this.showSoftClips),
+            click: function showSoftClipsHandler() {
+                this.alignmentTrack.showSoftClips = !this.alignmentTrack.showSoftClips
+                const alignmentContainers = this.getCachedAlignmentContainers()
+                for (let ac of alignmentContainers) {
+                    ac.pack(this)
+                }
                 this.trackView.repaintViews()
             }
         })
 
-        //DVT specific
+        // SBX Options
+        menuItems.push('<hr/>')
+        element = document.createElement('div')
+        element.className = 'igv-track-menu-category'
+        element.textContent = 'SBX Options:'
+        menuItems.push({ name: undefined, element, click: undefined, init: undefined })
+
         menuItems.push({
             element: createCheckbox("INDEL coloring uses grey (SBX)", this.indelQualSbx),
             click: function showIndelQualSbxHandler() {
@@ -984,20 +993,7 @@ class AlignmentTrack extends TrackBase {
                 this.trackView.repaintViews()
             }
         })
-        */
-
-        // Soft clips
-        menuItems.push({
-            element: createCheckbox("Show soft clips", this.showSoftClips),
-            click: function showSoftClipsHandler() {
-                this.alignmentTrack.showSoftClips = !this.alignmentTrack.showSoftClips
-                const alignmentContainers = this.getCachedAlignmentContainers()
-                for (let ac of alignmentContainers) {
-                    ac.pack(this)
-                }
-                this.trackView.repaintViews()
-            }
-        })
+        */        
 
         // View as pairs
         if (this.hasPairs) {
