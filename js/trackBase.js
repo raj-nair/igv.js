@@ -475,6 +475,8 @@ class TrackBase {
 
         const fragment = document.createDocumentFragment()
 
+        // DVT specific Change: Commenting out the display of the file URL/name in the track label popup
+        /*
         if (this.url) {
             if (FileUtils.isFile(this.url)) {
                 fragment.appendChild(createKeyValueRow('Filename', this.url.name))
@@ -482,13 +484,17 @@ class TrackBase {
                 fragment.appendChild(createKeyValueRow('URL', this.url))
             }
         } else {
+        */
             // If no URL, just return the name as a simple text node
             const nameDiv = document.createElement('div')
             nameDiv.className = 'igv-track-label-popover__row'
             nameDiv.textContent = this.name
             fragment.appendChild(nameDiv)
+        // DVT specific Change
+        /*
             return fragment
         }
+        */
 
         if (this.config) {
             if (this.config.metadata) {
