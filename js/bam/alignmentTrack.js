@@ -554,6 +554,7 @@ class AlignmentTrack extends TrackBase {
                     IGVGraphics.fillRect(ctx, bbox.x, bbox.y, bbox.width, bbox.height, { fillStyle: baseColor })
                 }
 
+                //IGV Web DVT specific -- highlight Q22 bases with a purple box, which is the same criteria used for highlighting low quality bases in the Java version of IGV
                 if (this.hightlightQ22Bases && readQual === QUAL_22) {
                     ctx.save()
                     ctx.lineWidth = 1
@@ -575,6 +576,7 @@ class AlignmentTrack extends TrackBase {
                 this.baseModRenderer.drawModifications(alignment, y, alignmentHeight, context, this.colorBy, this.baseModificationThreshold)
             }
 
+            //IGV Web DVT specific
             if (this.tailQualSbx && !this.hideTailSbx) {
                 let simplexTailLeftEnd = 0;
                 let alignmentLength = alignment.lengthOnRef || 0;
